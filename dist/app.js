@@ -23,6 +23,7 @@ const health_routes_1 = __importDefault(require("./routes/health.routes"));
 const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
 const userProject_routes_1 = __importDefault(require("./routes/userProject.routes"));
 const app = (0, express_1.default)();
+app.set('trust proxy', 1);
 (0, database_1.connectDB)();
 app.use((0, cors_1.default)({
     origin: process.env.NODE_ENV === 'production'

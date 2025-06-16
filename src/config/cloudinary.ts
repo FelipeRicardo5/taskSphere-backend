@@ -10,6 +10,16 @@ cloudinary.config({
   api_secret: env.CLOUDINARY_API_SECRET
 });
 
+interface CloudinaryParams {
+  folder: string;
+  allowed_formats: string[];
+  transformation: Array<{
+    width: number;
+    height: number;
+    crop: string;
+  }>;
+}
+
 // Configurações específicas para diferentes tipos de upload
 const uploadConfigs = {
   avatar: {
@@ -36,21 +46,21 @@ export const storages = {
     params: {
       ...uploadConfigs.avatar,
       resource_type: 'auto'
-    }
+    } as CloudinaryParams
   }),
   project: new CloudinaryStorage({
     cloudinary,
     params: {
       ...uploadConfigs.project,
       resource_type: 'auto'
-    }
+    } as CloudinaryParams
   }),
   task: new CloudinaryStorage({
     cloudinary,
     params: {
       ...uploadConfigs.task,
       resource_type: 'auto'
-    }
+    } as CloudinaryParams
   })
 };
 

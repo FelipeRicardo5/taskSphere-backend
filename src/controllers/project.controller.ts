@@ -1,19 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ProjectService } from '../services/project.service';
 import { ValidationError } from '../utils/errors';
-import { IProject } from '../types/models';
-import { Types } from 'mongoose';
-
-interface PopulatedCreator {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-}
-
-interface PopulatedProject extends Omit<IProject, 'creator_id' | 'collaborators'> {
-  creator_id: PopulatedCreator;
-  collaborators: PopulatedCreator[];
-}
 
 export class ProjectController {
   static async getAll(_req: Request, res: Response, next: NextFunction) {
