@@ -21,6 +21,9 @@ import userProjectRoutes from './routes/userProject.routes';
 // Initialize express app
 const app = express();
 
+// For render, idk why????
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
