@@ -61,18 +61,23 @@ export class TaskController {
   // Get tasks with filters
   static async getTasks(req: Request, res: Response, _next: NextFunction) {
     try {
-      const { title, status, project_id, page = 1, limit = 10 } = req.query;
+      const { title, status, project_id, creator_id, page = 1, limit = 10 } = req.query;
       const query: any = {};
 
       // Build search query
       if (title) {
-        query.title = { $regex: title, $options: 'i' };
+        // Decodifica o título da URL e remove espaços extras
+        const decodedTitle = decodeURIComponent(title.toString()).trim();
+        query.title = { $regex: `^${decodedTitle}$`, $options: 'i' };
       }
       if (status) {
         query.status = status;
       }
       if (project_id) {
         query.project_id = project_id;
+      }
+      if (creator_id) {
+        query.creator_id = creator_id.toString();
       }
 
       // Calculate pagination
@@ -85,7 +90,7 @@ export class TaskController {
         .populate('creator_id', 'name email')
         .populate('project_id', 'name');
 
-      res.json({
+      res.status(200).json({
         success: true,
         data: {
           tasks,
@@ -146,10 +151,7 @@ export class TaskController {
 
       await TaskService.delete(id, userId.toString());
 
-      res.status(200).json({
-        success: true,
-        message: 'Task deleted successfully',
-      });
+      res.status(204).send();
     } catch (error) {
       next(error);
     }

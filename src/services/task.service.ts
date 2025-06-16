@@ -7,6 +7,7 @@ interface TaskFilters {
   title?: string;
   status?: 'todo' | 'in_progress' | 'done';
   project_id?: string;
+  creator_id?: string;
   page?: number;
   limit?: number;
 }
@@ -55,7 +56,7 @@ export class TaskService {
 
   // Get tasks with filters and pagination
   static async getTasks(filters: TaskFilters): Promise<PaginatedTasks> {
-    const { title, status, project_id, page = 1, limit = 10 } = filters;
+    const { title, status, project_id, creator_id, page = 1, limit = 10 } = filters;
     const skip = (page - 1) * limit;
 
     const query: any = {};
@@ -72,21 +73,29 @@ export class TaskService {
       query.project_id = project_id;
     }
 
+    if (creator_id) {
+      query.creator_id = creator_id.toString();
+    }
+
     const [tasks, total] = await Promise.all([
       Task.find(query)
         .skip(skip)
         .limit(limit)
-        .sort({ created_at: -1 })
+        .sort({ createdAt: -1 })
         .populate('creator_id', 'name email')
         .populate('project_id', 'name'),
       Task.countDocuments(query),
     ]);
 
+    const filteredTasks = tasks.filter(task => 
+      task.creator_id._id.toString() === creator_id?.toString()
+    );
+
     return {
-      tasks,
-      total,
+      tasks: filteredTasks,
+      total: filteredTasks.length,
       page,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(filteredTasks.length / limit),
     };
   }
 

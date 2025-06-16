@@ -9,11 +9,14 @@ import { specs as swaggerSpec } from './docs/swagger';
 import { apiLimiter, authLimiter } from './middleware/rate-limit';
 import { requestLogger, errorLogger } from './middleware/logger';
 import { cacheMiddleware } from './middleware/cache';
+
+import collaboratorRoutes from './routes/collaborator.routes'
 import authRoutes from './routes/auth.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes';
 import healthRoutes from './routes/health.routes';
 import uploadRoutes from './routes/upload.routes';
+import userProjectRoutes from './routes/userProject.routes';
 
 // Initialize express app
 const app = express();
@@ -22,7 +25,15 @@ const app = express();
 connectDB();
 
 // Security middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.ALLOWED_ORIGINS?.split(',') || []
+    : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  maxAge: 86400 // 24 hours
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 
@@ -45,6 +56,8 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/user', userProjectRoutes);
+app.use('/api/collaborators', collaboratorRoutes)
 
 // Cache middleware for GET requests
 app.use('/api/projects', cacheMiddleware(300));

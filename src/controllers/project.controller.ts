@@ -4,12 +4,25 @@ import { ValidationError } from '../utils/errors';
 import { IProject } from '../types/models';
 import { Types } from 'mongoose';
 
+interface PopulatedCreator {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+}
+
+interface PopulatedProject extends Omit<IProject, 'creator_id' | 'collaborators'> {
+  creator_id: PopulatedCreator;
+  collaborators: PopulatedCreator[];
+}
+
 export class ProjectController {
-  // Get all projects
   static async getAll(_req: Request, res: Response, next: NextFunction) {
     try {
       const projects = await ProjectService.getAll();
-      res.json(projects);
+      res.json({
+        success: true,
+        data: projects
+      });
       return;
     } catch (error) {
       next(error);
@@ -17,14 +30,22 @@ export class ProjectController {
     }
   }
 
-  // Get project by ID
   static async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const project = await ProjectService.getById(req.params.id);
       if (!project) {
         throw new ValidationError('Project not found');
       }
-      res.json(project);
+
+      // Verificar se o projeto está populado corretamente
+      if (!project.creator_id || typeof project.creator_id === 'string' || !('_id' in project.creator_id)) {
+        throw new ValidationError('Project data is not properly populated');
+      }
+
+      res.json({
+        success: true,
+        data: project
+      });
       return;
     } catch (error) {
       next(error);
@@ -32,7 +53,6 @@ export class ProjectController {
     }
   }
 
-  // Create new project
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Creating project with data:', req.body);
@@ -43,7 +63,10 @@ export class ProjectController {
         end_date: req.body.end_date,
         creator_id: req.user._id
       });
-      res.status(201).json(project);
+      res.status(201).json({
+        success: true,
+        data: project
+      });
       return;
     } catch (error) {
       console.error('Error creating project:', error);
@@ -52,26 +75,50 @@ export class ProjectController {
     }
   }
 
-  // Update project
   static async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.getById(req.params.id) as IProject;
+      console.log('Update Project - User ID:', req.user._id);
+      console.log('Update Project - Project ID:', req.params.id);
+
+      const project = await ProjectService.getById(req.params.id);
       if (!project) {
         throw new ValidationError('Project not found');
       }
 
+      // Verificar se o projeto está populado corretamente
+      if (!project.creator_id || typeof project.creator_id === 'string' || !('_id' in project.creator_id)) {
+        throw new ValidationError('Project data is not properly populated');
+      }
+
+      const creatorId = project.creator_id._id;
+      const userId = req.user._id;
+
+      console.log('Project found:', {
+        creator_id: creatorId.toString(),
+        user_id: userId.toString(),
+        isCreator: creatorId.toString() === userId.toString(),
+        collaborators: project.collaborators
+      });
+
       // Check if user is owner or collaborator
       if (
-        (project.creator_id as Types.ObjectId).toString() !== req.user._id &&
-        !project.collaborators.some(id => (id as Types.ObjectId).toString() === req.user._id)
+        creatorId.toString() !== userId.toString() &&
+        !project.collaborators.some(collab => 
+          typeof collab === 'object' && '_id' in collab && 
+          collab._id.toString() === userId.toString()
+        )
       ) {
         throw new ValidationError('Not authorized to update this project');
       }
 
       const updatedProject = await ProjectService.update(req.params.id, req.body);
-      res.json(updatedProject);
+      res.json({
+        success: true,
+        data: updatedProject
+      });
       return;
     } catch (error) {
+      console.error('Error in update project:', error);
       next(error);
       return;
     }
@@ -80,13 +127,30 @@ export class ProjectController {
   // Delete project
   static async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.getById(req.params.id) as IProject;
+      console.log('Delete Project - User ID:', req.user._id);
+      console.log('Delete Project - Project ID:', req.params.id);
+
+      const project = await ProjectService.getById(req.params.id);
       if (!project) {
         throw new ValidationError('Project not found');
       }
 
+      // Verificar se o projeto está populado corretamente
+      if (!project.creator_id || typeof project.creator_id === 'string' || !('_id' in project.creator_id)) {
+        throw new ValidationError('Project data is not properly populated');
+      }
+
+      const creatorId = project.creator_id._id;
+      const userId = req.user._id;
+
+      console.log('Project found:', {
+        creator_id: creatorId.toString(),
+        user_id: userId.toString(),
+        isCreator: creatorId.toString() === userId.toString()
+      });
+
       // Check if user is owner
-      if ((project.creator_id as Types.ObjectId).toString() !== req.user._id) {
+      if (creatorId.toString() !== userId.toString()) {
         throw new ValidationError('Not authorized to delete this project');
       }
 
@@ -94,6 +158,7 @@ export class ProjectController {
       res.status(204).send();
       return;
     } catch (error) {
+      console.error('Error in delete project:', error);
       next(error);
       return;
     }
@@ -102,13 +167,21 @@ export class ProjectController {
   // Add collaborator to project
   static async addCollaborator(req: Request, res: Response, next: NextFunction) {
     try {
-      const project = await ProjectService.getById(req.params.id) as IProject;
+      const project = await ProjectService.getById(req.params.id);
       if (!project) {
         throw new ValidationError('Project not found');
       }
 
+      // Verificar se o projeto está populado corretamente
+      if (!project.creator_id || typeof project.creator_id === 'string' || !('_id' in project.creator_id)) {
+        throw new ValidationError('Project data is not properly populated');
+      }
+
+      const creatorId = project.creator_id._id;
+      const userId = req.user._id;
+
       // Check if user is owner
-      if ((project.creator_id as Types.ObjectId).toString() !== req.user._id) {
+      if (creatorId.toString() !== userId.toString()) {
         throw new ValidationError('Not authorized to add collaborators to this project');
       }
 
@@ -116,9 +189,13 @@ export class ProjectController {
         req.params.id,
         req.body.collaborator_id
       );
-      res.json(updatedProject);
+      res.json({
+        success: true,
+        data: updatedProject
+      });
       return;
     } catch (error) {
+      console.error('Error adding collaborator:', error);
       next(error);
       return;
     }
@@ -131,13 +208,21 @@ export class ProjectController {
     next: NextFunction
   ) {
     try {
-      const project = await ProjectService.getById(req.params.id) as IProject;
+      const project = await ProjectService.getById(req.params.id);
       if (!project) {
         throw new ValidationError('Project not found');
       }
 
+      // Verificar se o projeto está populado corretamente
+      if (!project.creator_id || typeof project.creator_id === 'string' || !('_id' in project.creator_id)) {
+        throw new ValidationError('Project data is not properly populated');
+      }
+
+      const creatorId = project.creator_id._id;
+      const userId = req.user._id;
+
       // Check if user is owner
-      if ((project.creator_id as Types.ObjectId).toString() !== req.user._id) {
+      if (creatorId.toString() !== userId.toString()) {
         throw new ValidationError('Not authorized to remove collaborators from this project');
       }
 
@@ -145,9 +230,13 @@ export class ProjectController {
         req.params.id,
         req.params.collaboratorId
       );
-      res.json(updatedProject);
+      res.json({
+        success: true,
+        data: updatedProject
+      });
       return;
     } catch (error) {
+      console.error('Error removing collaborator:', error);
       next(error);
       return;
     }
@@ -161,9 +250,13 @@ export class ProjectController {
   ) {
     try {
       const collaborators = await ProjectService.getCollaborators(_req.params.id);
-      res.json(collaborators);
+      res.json({
+        success: true,
+        data: collaborators
+      });
       return;
     } catch (error) {
+      console.error('Error getting collaborators:', error);
       next(error);
       return;
     }

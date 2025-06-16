@@ -64,10 +64,12 @@ router.get('/suggestions', authenticate, CollaboratorController.getSuggestedColl
  *         application/json:
  *           schema:
  *             type: object
- *             required: [collaborator_id]
+ *             required: [email]
  *             properties:
- *               collaborator_id:
+ *               email:
  *                 type: string
+ *                 format: email
+ *                 description: Email of the user to add as collaborator
  *     responses:
  *       200:
  *         description: Collaborator added successfully

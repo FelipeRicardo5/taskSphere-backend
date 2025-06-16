@@ -22,6 +22,21 @@ const userSchema = new Schema<IUser>(
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters long'],
     },
+    avatar_url: {
+      type: String,
+      validate: {
+        validator: function(v: string) {
+          if (!v) return true; // Allow empty values since it's optional
+          try {
+            new URL(v);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        message: 'Avatar URL must be a valid URL'
+      }
+    }
   },
   {
     timestamps: true,

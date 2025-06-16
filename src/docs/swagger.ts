@@ -715,10 +715,10 @@ const options = {
           }
         }
       },
-      '/api/upload/image': {
+      '/api/upload/avatar': {
         post: {
           tags: ['Upload'],
-          summary: 'Upload an image',
+          summary: 'Upload an avatar image',
           security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
@@ -726,10 +726,12 @@ const options = {
               'multipart/form-data': {
                 schema: {
                   type: 'object',
+                  required: ['image'],
                   properties: {
                     image: {
                       type: 'string',
-                      format: 'binary'
+                      format: 'binary',
+                      description: 'Image file (jpg, jpeg, png)'
                     }
                   }
                 }
@@ -738,7 +740,7 @@ const options = {
           },
           responses: {
             200: {
-              description: 'Image uploaded successfully',
+              description: 'Avatar uploaded successfully',
               content: {
                 'application/json': {
                   schema: {
@@ -752,6 +754,307 @@ const options = {
                           public_id: { type: 'string' }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Invalid file type or size',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/upload/project': {
+        post: {
+          tags: ['Upload'],
+          summary: 'Upload a project image',
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  required: ['image'],
+                  properties: {
+                    image: {
+                      type: 'string',
+                      format: 'binary',
+                      description: 'Image file (jpg, jpeg, png, gif)'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Project image uploaded successfully',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      data: {
+                        type: 'object',
+                        properties: {
+                          url: { type: 'string' },
+                          public_id: { type: 'string' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Invalid file type or size',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/upload/task': {
+        post: {
+          tags: ['Upload'],
+          summary: 'Upload a task image',
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  required: ['image'],
+                  properties: {
+                    image: {
+                      type: 'string',
+                      format: 'binary',
+                      description: 'Image file (jpg, jpeg, png, gif)'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Task image uploaded successfully',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      data: {
+                        type: 'object',
+                        properties: {
+                          url: { type: 'string' },
+                          public_id: { type: 'string' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Invalid file type or size',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/upload/image/{public_id}': {
+        delete: {
+          tags: ['Upload'],
+          summary: 'Delete an uploaded image',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              in: 'path',
+              name: 'public_id',
+              required: true,
+              schema: { type: 'string' },
+              description: 'Public ID of the image to delete'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Image deleted successfully',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      message: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Invalid public ID',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        get: {
+          tags: ['Upload'],
+          summary: 'Get image URL by public ID',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              in: 'path',
+              name: 'public_id',
+              required: true,
+              schema: { type: 'string' },
+              description: 'Public ID of the image'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Image URL retrieved successfully',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      data: {
+                        type: 'object',
+                        properties: {
+                          url: { type: 'string' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Invalid public ID',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean' },
+                      error: { type: 'string' }
                     }
                   }
                 }
@@ -833,10 +1136,15 @@ const options = {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['collaborator_id'],
+                  required: ['email'],
                   properties: {
-                    collaborator_id: { type: 'string' }
-                  }
+                    email: {
+                      type: 'string',
+                      format: 'email',
+                      description: 'Email of the user to add as collaborator'
+                    }
+                  },
+                  additionalProperties: false
                 }
               }
             }
@@ -856,6 +1164,58 @@ const options = {
                           project: { $ref: '#/components/schemas/Project' }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Validation error',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            403: {
+              description: 'Forbidden - Not project creator',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'Project or user not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: { type: 'string' }
                     }
                   }
                 }

@@ -5,6 +5,7 @@ export interface IProject extends Document {
   description?: string;
   start_date: Date;
   end_date: Date;
+  image_url?: string;
   creator_id: mongoose.Types.ObjectId;
   collaborators: mongoose.Types.ObjectId[];
   createdAt: Date;
@@ -23,6 +24,21 @@ const projectSchema = new Schema({
     maxlength: [500, 'Description cannot exceed 500 characters'],
     trim: true
   },
+  image_url: {
+    type: String,
+    validate: {
+      validator: function(v: string) {
+        if (!v) return true; // Allow empty values since it's optional
+        try {
+          new URL(v);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      message: 'Image URL must be a valid URL'
+    }
+  },
   start_date: {
     type: Date,
     required: [true, 'Start date is required'],
@@ -36,12 +52,21 @@ const projectSchema = new Schema({
   end_date: {
     type: Date,
     required: [true, 'End date is required'],
-    validate: {
-      validator: function(this: { start_date: Date }, v: Date) {
-        return v instanceof Date && !isNaN(v.getTime()) && v > this.start_date;
+    validate: [
+      {
+        validator: function(v: Date) {
+          return v instanceof Date && !isNaN(v.getTime());
+        },
+        message: 'End date must be a valid date'
       },
-      message: 'End date must be a valid date and must be after start date'
-    }
+      {
+        validator: function(this: { start_date: Date }, v: Date) {
+          if (!this.start_date) return true;
+          return v > this.start_date;
+        },
+        message: 'End date must be after start date'
+      }
+    ]
   },
   creator_id: {
     type: Schema.Types.ObjectId,

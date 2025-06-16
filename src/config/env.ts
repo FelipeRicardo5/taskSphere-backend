@@ -13,6 +13,7 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string(),
   JWT_EXPIRES_IN: z.string().default('1h'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+  ALLOWED_ORIGINS: z.string().optional(),
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
   AWS_REGION: z.string().optional(),

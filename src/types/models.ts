@@ -4,6 +4,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  avatar_url?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -14,6 +15,7 @@ export interface IProject extends Document {
   description?: string;
   start_date: Date;
   end_date: Date;
+  image_url?: string;
   creator_id: IUser['_id'];
   collaborators: IUser['_id'][];
   createdAt: Date;

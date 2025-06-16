@@ -8,12 +8,13 @@ export const validateRequest = (schema: ZodSchema) => {
       console.log('Request body:', req.body);
       const result = await schema.parseAsync(req.body);
       console.log('Validation result:', result);
-      req.body = result; // Atualiza o body com o resultado da validação
+      req.body = result; 
       next();
     } catch (error) {
       console.error('Validation error:', error);
       if (error.errors) {
-        throw new ValidationError(error.errors[0].message);
+        next(new ValidationError(error.errors[0].message));
+        return;
       }
       next(error);
     }

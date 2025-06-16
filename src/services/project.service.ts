@@ -6,15 +6,34 @@ import { Types } from 'mongoose';
 export class ProjectService {
   // Get all projects
   static async getAll(): Promise<IProject[]> {
-    return Project.find().lean();
+    try{
+      const projects = await Project.find()
+      .populate('creator_id', 'name email')
+      .lean()
+
+      return projects
+    }catch(error){
+      console.error('Error getting project by ID:', error);
+      throw error;
+    }
   }
 
-  // Get project by ID
   static async getById(id: string): Promise<IProject | null> {
-    return Project.findById(id).lean();
+    try {
+      console.log('Getting project by ID:', id);
+      const project = await Project.findById(id)
+        .populate('creator_id', 'name email')
+        .populate('collaborators', 'name email')
+        .lean();
+      
+      console.log('Project found:', project);
+      return project;
+    } catch (error) {
+      console.error('Error getting project by ID:', error);
+      throw error;
+    }
   }
 
-  // Create new project
   static async create(projectData: {
     name: string;
     description?: string;
@@ -31,7 +50,83 @@ export class ProjectService {
     id: string,
     updateData: Partial<IProject>
   ): Promise<IProject | null> {
-    return Project.findByIdAndUpdate(id, updateData, { new: true }).lean();
+    try {
+      // Se ambas as datas estiverem sendo atualizadas, validar a relação entre elas
+      if (updateData.start_date && updateData.end_date) {
+        const startDate = new Date(updateData.start_date);
+        const endDate = new Date(updateData.end_date);
+        
+        if (endDate <= startDate) {
+          throw new Error('End date must be after start date');
+        }
+      }
+      // Se apenas a data de início estiver sendo atualizada, verificar com a data de término existente
+      else if (updateData.start_date) {
+        const project = await Project.findById(id);
+        if (project && new Date(updateData.start_date) >= project.end_date) {
+          throw new Error('Start date must be before end date');
+        }
+      }
+      // Se apenas a data de término estiver sendo atualizada, verificar com a data de início existente
+      else if (updateData.end_date) {
+        const project = await Project.findById(id);
+        if (project && new Date(updateData.end_date) <= project.start_date) {
+          throw new Error('End date must be after start date');
+        }
+      }
+
+      // Primeiro atualiza as datas para garantir a validação correta
+      if (updateData.start_date || updateData.end_date) {
+        const project = await Project.findById(id);
+        if (!project) {
+          throw new Error('Project not found');
+        }
+
+        // Atualiza as datas no documento antes de salvar
+        if (updateData.start_date) project.start_date = new Date(updateData.start_date);
+        if (updateData.end_date) project.end_date = new Date(updateData.end_date);
+
+        // Valida o documento
+        await project.validate();
+
+        // Atualiza o resto dos campos
+        const updatedProject = await Project.findByIdAndUpdate(
+          id,
+          { $set: updateData },
+          { 
+            new: true,
+            runValidators: true,
+            context: 'query'
+          }
+        ).populate('creator_id', 'name email')
+         .populate('collaborators', 'name email')
+         .lean();
+
+        return updatedProject;
+      }
+
+      // Se não estiver atualizando datas, atualiza normalmente
+      const updatedProject = await Project.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { 
+          new: true,
+          runValidators: true,
+          context: 'query'
+        }
+      ).populate('creator_id', 'name email')
+       .populate('collaborators', 'name email')
+       .lean();
+
+      if (!updatedProject) {
+        throw new Error('Project not found');
+      }
+
+      return updatedProject;
+    } catch (error) {
+      console.error('Error updating project:', error);
+      throw error;
+    }
   }
 
   // Delete project

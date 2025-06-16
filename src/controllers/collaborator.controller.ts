@@ -32,8 +32,26 @@ export class CollaboratorController {
         throw new UnauthorizedError('User not authenticated');
       }
 
+      // Validate request body
+      if (!req.body || Object.keys(req.body).length === 0) {
+        throw new BadRequestError('Request body is required');
+      }
+
       if (!email) {
         throw new BadRequestError('Email is required');
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new BadRequestError('Invalid email format');
+      }
+
+      // Check for extra fields
+      const allowedFields = ['email'];
+      const extraFields = Object.keys(req.body).filter(field => !allowedFields.includes(field));
+      if (extraFields.length > 0) {
+        throw new BadRequestError(`Extra fields not allowed: ${extraFields.join(', ')}`);
       }
 
       const project = await ProjectService.addCollaboratorToUser(id, userId.toString(), email);

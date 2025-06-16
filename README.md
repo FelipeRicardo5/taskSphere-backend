@@ -1,120 +1,123 @@
 # TaskSphere Backend
 
-A robust backend API for the TaskSphere project management application.
+TaskSphere é uma aplicação de gerenciamento de projetos que permite equipes colaborarem de forma eficiente em suas tarefas e projetos.
 
-## Features
+## 🚀 Tecnologias Utilizadas
 
-- User authentication with JWT
-- Project management
-- Task management
-- File uploads (AWS S3 or Cloudinary)
-- API documentation with Swagger
-- Comprehensive test suite
+- **Node.js** - Runtime JavaScript
+- **TypeScript** - Superset JavaScript com tipagem estática
+- **Express.js** - Framework web para Node.js
+- **MongoDB** - Banco de dados NoSQL
+- **Mongoose** - ODM para MongoDB
+- **JWT** - Autenticação baseada em tokens
+- **Swagger** - Documentação da API
+- **Jest** - Framework de testes
+- **ESLint & Prettier** - Linting e formatação de código
+- **Winston** - Sistema de logging
+- **Cloudinary** - Gerenciamento de arquivos e imagens
+- **AWS S3** - Armazenamento em nuvem
 
-## Prerequisites
+## 📋 Pré-requisitos
 
-- Node.js (v14 or higher)
+- Node.js (versão 14 ou superior)
 - MongoDB
-- npm or yarn
+- NPM ou Yarn
+- Variáveis de ambiente configuradas (ver seção de configuração)
 
-## Installation
+## 🔧 Instalação
 
-1. Clone the repository:
+1. Clone o repositório:
 ```bash
-git clone https://github.com/yourusername/tasksphere-backend.git
+git clone [URL_DO_REPOSITÓRIO]
 cd tasksphere-backend
 ```
 
-2. Install dependencies:
+2. Instale as dependências:
 ```bash
 npm install
 ```
 
-3. Create a `.env` file in the root directory and configure your environment variables:
-```bash
-cp .env.example .env
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+```env
+PORT=3000
+MONGODB_URI=sua_uri_mongodb
+JWT_SECRET=seu_jwt_secret
+CLOUDINARY_CLOUD_NAME=seu_cloud_name
+CLOUDINARY_API_KEY=sua_api_key
+CLOUDINARY_API_SECRET=seu_api_secret
+AWS_ACCESS_KEY_ID=sua_access_key
+AWS_SECRET_ACCESS_KEY=sua_secret_key
+AWS_REGION=sua_regiao
+AWS_BUCKET_NAME=nome_do_bucket
 ```
 
-4. Update the `.env` file with your configuration values.
+## 🚀 Executando o Projeto
 
-## Development
-
-Start the development server:
+### Desenvolvimento
 ```bash
 npm run dev
 ```
 
-The server will start at `http://localhost:3000`.
+### Produção
+```bash
+npm run build
+npm start
+```
 
-## API Documentation
-
-Access the Swagger documentation at `http://localhost:3000/api-docs`.
-
-## Testing
-
-Run the test suite:
+### Testes
 ```bash
 npm test
 ```
 
-Run tests with coverage:
-```bash
-npm run test:coverage
+## 📚 Documentação da API
+
+A documentação da API está disponível através do Swagger UI. Após iniciar o servidor, acesse:
+```
+http://localhost:3000/api-docs
 ```
 
-## Production
-
-Build the application:
-```bash
-npm run build
-```
-
-Start the production server:
-```bash
-npm start
-```
-
-## Environment Variables
-
-- `NODE_ENV`: Environment (development, test, production)
-- `PORT`: Server port
-- `MONGODB_URI`: MongoDB connection string
-- `JWT_SECRET`: Secret key for JWT tokens
-- `JWT_REFRESH_SECRET`: Secret key for refresh tokens
-- `JWT_EXPIRES_IN`: JWT token expiration time
-- `JWT_REFRESH_EXPIRES_IN`: Refresh token expiration time
-- `AWS_ACCESS_KEY_ID`: AWS access key (optional)
-- `AWS_SECRET_ACCESS_KEY`: AWS secret key (optional)
-- `AWS_REGION`: AWS region (optional)
-- `AWS_S3_BUCKET`: AWS S3 bucket name (optional)
-- `CLOUDINARY_CLOUD_NAME`: Cloudinary cloud name (optional)
-- `CLOUDINARY_API_KEY`: Cloudinary API key (optional)
-- `CLOUDINARY_API_SECRET`: Cloudinary API secret (optional)
-
-## Project Structure
+## 🏗️ Estrutura do Projeto
 
 ```
 src/
-├── config/         # Configuration files
-├── controllers/    # Route controllers
-├── docs/          # Documentation
-├── middleware/    # Custom middleware
-├── models/        # Mongoose models
-├── routes/        # API routes
-├── services/      # Business logic
-├── utils/         # Utility functions
-├── app.ts         # Express app
-└── server.ts      # Server entry point
+├── components/     # Componentes reutilizáveis
+├── config/        # Configurações da aplicação
+├── controllers/   # Controladores da API
+├── docs/         # Documentação
+├── hooks/        # Hooks personalizados
+├── middleware/   # Middlewares
+├── models/       # Modelos do MongoDB
+├── routes/       # Rotas da API
+├── services/     # Serviços de negócio
+├── tests/        # Testes
+├── types/        # Definições de tipos TypeScript
+├── utils/        # Utilitários
+├── validations/  # Validações
+├── app.ts        # Configuração do Express
+└── server.ts     # Ponto de entrada da aplicação
 ```
 
-## Contributing
+## 🔍 Scripts Disponíveis
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- `npm start` - Inicia o servidor em modo produção
+- `npm run dev` - Inicia o servidor em modo desenvolvimento
+- `npm run build` - Compila o TypeScript
+- `npm test` - Executa os testes
+- `npm run test:watch` - Executa os testes em modo watch
+- `npm run test:coverage` - Gera relatório de cobertura de testes
+- `npm run lint` - Executa o linter
+- `npm run lint:fix` - Corrige problemas de linting
+- `npm run format` - Formata o código usando Prettier
 
-## License
+## 🤝 Contribuindo
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes. 

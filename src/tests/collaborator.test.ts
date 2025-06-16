@@ -109,7 +109,7 @@ describe('Collaborators', () => {
         .post(`/api/projects/${projectId}/collaborators`)
         .set('Authorization', `Bearer ${creatorToken}`)
         .send({
-          collaborator_id: new mongoose.Types.ObjectId().toString()
+          email: 'new-collaborator@test.com'
         });
 
       expect(res.status).toBe(200);
@@ -122,10 +122,57 @@ describe('Collaborators', () => {
         .post(`/api/projects/${projectId}/collaborators`)
         .set('Authorization', `Bearer ${collaboratorToken}`)
         .send({
-          collaborator_id: new mongoose.Types.ObjectId().toString()
+          email: 'new-collaborator@test.com'
         });
 
       expect(res.status).toBe(403);
+    });
+
+    it('should return 400 when request body is empty', async () => {
+      const res = await request(app)
+        .post(`/api/projects/${projectId}/collaborators`)
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Request body is required');
+    });
+
+    it('should return 400 when email is missing', async () => {
+      const res = await request(app)
+        .post(`/api/projects/${projectId}/collaborators`)
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .send({
+          name: 'Test User'
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Email is required');
+    });
+
+    it('should return 400 when email format is invalid', async () => {
+      const res = await request(app)
+        .post(`/api/projects/${projectId}/collaborators`)
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .send({
+          email: 'invalid-email'
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Invalid email format');
+    });
+
+    it('should return 400 when extra fields are present', async () => {
+      const res = await request(app)
+        .post(`/api/projects/${projectId}/collaborators`)
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .send({
+          email: 'test@example.com',
+          extraField: 'value'
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Extra fields not allowed: extraField');
     });
   });
 
