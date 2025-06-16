@@ -34,7 +34,7 @@ const errorHandler = (err, _req, res, _next) => {
         error = new Error(message);
         error.statusCode = 400;
     }
-    res.status(error.statusCode || 500).json({
+    return res.status(error.statusCode || 500).json({
         success: false,
         error: error.message || 'Server Error',
         details: process.env.NODE_ENV === 'development' ? err : undefined

@@ -77,7 +77,7 @@ export class TaskService {
       query.creator_id = creator_id.toString();
     }
 
-    const [tasks, total] = await Promise.all([
+    const [tasks, _total] = await Promise.all([
       Task.find(query)
         .skip(skip)
         .limit(limit)
